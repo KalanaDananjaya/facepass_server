@@ -57,10 +57,11 @@ app.post('/register',registerUpload.single('file'),function(req,res){
         
         
         var sql = "INSERT INTO faces (uid,vector) values(?,?)";
-        var params = [uid,response.data];
+        var params = [uid,JSON.stringify(response.data)];
 
         sql = mysql.format(sql,params);
-        //Need to fix the error when uploading vector to mysql
+        
+        //will need to increase innodb_log_file_size=32MB in mysql ini file
         db.query(sql,function(err,result){
         if (err){
             throw err;
