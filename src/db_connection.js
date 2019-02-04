@@ -6,7 +6,7 @@ var connection = mysql.createConnection({
     password:'',
     database:'facepass'
 });
-/*
+
 connection.connect(function (err){
     if(err) {
         throw err;
@@ -16,4 +16,4 @@ connection.connect(function (err){
     }
 });
 
-module.exports = connection;*/
+module.exports = connection;
