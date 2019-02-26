@@ -78,6 +78,7 @@ app.post('/register',registerUpload.single('file'),function(req,res){
 app.post('/verify',upload.single('file'),function(req,res){
     console.log('recieved file for comparison');
     var filename =req.file.filename; //obtain the file name of the uploaded file
+    console.log(filename);
     var uid = req.body.uid;
     var sql = "SELECT vector from faces where uid=?";
     var params = [uid];
