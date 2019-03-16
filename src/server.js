@@ -8,12 +8,13 @@ var multer = require('multer');
 var upload = multer ({ dest : 'uploads/'});
 var registerUpload =multer ({ dest : 'register/'});
 var FormData = require('form-data');
-
+var cors = require('cors');
 
 
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors());
 
 
 app.post('/register',registerUpload.single('file'),function(req,res){
@@ -51,6 +52,7 @@ app.post('/register',registerUpload.single('file'),function(req,res){
         }
     })
     .then((response)=>{
+        console.log(response);
         var sql = "INSERT INTO faces (uid,face,vector) values(?,?,?)";
         var params = [uid,fileName,JSON.stringify(response.data)]; //response.data is the vector of the face
 
@@ -75,11 +77,38 @@ app.post('/register',registerUpload.single('file'),function(req,res){
     
 });
 
-app.post('/verify',upload.single('file'),function(req,res){
+app.get('/verify',function(req,res){
+    console.log('verify get');
+});
+
+
+app.post('/verify',upload.single('file'),function(req,response){
     console.log('recieved file for comparison');
     var filename =req.file.filename; //obtain the file name of the uploaded file
     console.log(filename);
     var uid = req.body.uid;
+
+    //*** uid gets undefined when used email due to callbacks.need to fix this***//
+
+    /*
+    var email = req.body.email;
+    var sql = "SELECT uid from customer where enail=?";
+    var params =[email];
+    sql = mysql.format(sql,params);
+
+    db.query(sql,function(err,result){
+        if(err){
+            throw err;
+        }
+        else{
+            console.log("uid",result);
+            uid=result;
+        }
+    });
+    */
+
+
+    console.log("uid is",uid);
     var sql = "SELECT vector from faces where uid=?";
     var params = [uid];
     sql = mysql.format(sql,params);
@@ -89,27 +118,34 @@ app.post('/verify',upload.single('file'),function(req,res){
             throw err;
         }
         else{
-            console.log("face vector query succesfully recieved");
-            face_vector=result[0].vector;
+            if(result){
+                console.log("face vector query succesfully recieved");
+                face_vector=result[0].vector;
 
-            var data = {
-                filename  : filename,
-                face_vector : face_vector
+                var data = {
+                    filename  : filename,
+                    face_vector : face_vector
+                }
+            
+                axios.post('http://localhost:5000/verify',data,{
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    }    
+                })
+                .then((res)=>{
+                    console.log("cos similarity is");
+                    console.log(res.data);
+                    response.json(res.data);
+                })
+                .catch((error)=>{
+                    console.log("failure");
+                    console.error(error);
+                })
             }
-        
-            axios.post('http://localhost:5000/verify',data,{
-                headers : {
-                    'Content-Type' : 'application/json'
-                }    
-            })
-            .then((res)=>{
-                console.log("cos similarity is");
-                console.log(res.data);
-            })
-            .catch((error)=>{
-                console.log("failure");
-                console.error(error);
-            })
+            else{
+                console.log("result is empty");
+            }
+            
         }
     });
     
@@ -121,15 +157,12 @@ app.post('/verify',upload.single('file'),function(req,res){
 
 
 
-/*
+
 app.get('/',function(req,res){
    
-    console.log('request is');
-    console.log(req);
-    console.log('request body is');
-    console.log(req.body);
-    data = {"test" : "hell"}
-
+    console.log('request revieced');
+    
+/*
     axios.post('http://localhost:5000/',data,{
         headers : {
             'Content-Type' : 'application/json'
@@ -145,25 +178,26 @@ app.get('/',function(req,res){
         console.log('error recieved');
         console.error(error);
     })
+*/    
     res.send(200);
 });
-*/
-/*
+
+
 app.post('/upload',upload.single('file'),function(req,response){
     
-    console.log('recieved file');
-    
-    var fileName=req.file.filename; //processed name
-    var originalName = req.file.originalname; //original name
-    console.log(originalName)
+    console.log('***************');
+    console.log(req.body);
+    console.log('***************');
 
-    var data = {
-        "filename":fileName,
-        "originalname" : originalName
+    if(req.file){
+        console.log(req.file);
     }
-    console.log ("data",data)
     
-    axios.post('http://localhost:5000/test',data,{
+    axios.get('http://localhost:5000/',{
+        
+    });
+    
+    axios.post('http://localhost:5000/test',req,{
         headers : {
             'Content-Type' : 'application/json'
         }
@@ -171,7 +205,6 @@ app.post('/upload',upload.single('file'),function(req,response){
     })
     .then((res)=>{
         console.log("succeeded");
-        console.log(res);
     })
     .catch((error)=>{
         console.log("failure");
@@ -180,6 +213,6 @@ app.post('/upload',upload.single('file'),function(req,response){
     
     response.send("success");
 });
-*/
+
 
 app.listen(3000);
