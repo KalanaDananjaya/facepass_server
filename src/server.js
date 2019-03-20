@@ -112,7 +112,7 @@ app.post('/verify',upload.single('file'),async function(req,response){
         var uid = dbRes[0].uid;
         console.log("user id",uid);
     
-    /* Need to make this function async */
+    
 
     let getFaceFromUid = async () =>{
         console.log("getface uid called",uid);
@@ -228,26 +228,51 @@ app.post('/upload',upload.single('file'),function(req,response){
     response.send("success");
 });
 
-app.post('/addaccount',function(req,res){
+app.post('/addaccount',async function(req,res){
     var website= req.body.website;
     var username=req.body.username;
     var password = req.body.password;
 
     console.log(req.body);
 
-    
-    
-    /*
-    db.query(sql,function(err,result){
-        if (err){
+    let getWebid = async () =>{
+        console.log("searching for webid");
+        var sql = "SELECT webid FROM website WHERE sitename=?";
+        var params = [website];
+        sql = mysql.format(sql,params);
+
+        let results = await new Promise((resolve,reject)=>db.query(sql,(err,dbresult)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                console.log("inside webid-sitename promise");
+                resolve(dbresult);
+            }
+        }));
+
+        return results;
+    }
+
+    var dbRes = await getWebid();
+    var webid = dbRes[0].webid;
+    var uid = "1ab0123d-700d-4ade-b5e0-d9c6e4bef257"; //should be taken from the local storage
+    console.log(webid);
+
+    var sql = "INSERT INTO credentials VALUES (?,?,?,?)";
+    var params = [webid,uid,username,password];
+    sql = mysql.format(sql,params);
+    console.log(sql);
+    db.query(sql,function (err,result){
+        if(err){
             throw err;
         }
         else{
-            console.log("face vector query succesfully updated");
-            res.send(200);
+            console.log("account details succesfully added");
+            res.json("success");
         }
-    });
-*/
+    })
+
     }); 
 
 
