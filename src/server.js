@@ -82,74 +82,88 @@ app.get('/verify',function(req,res){
 });
 
 
-app.post('/verify',upload.single('file'),function(req,response){
+app.post('/verify',upload.single('file'),async function(req,response){
     console.log('recieved file for comparison');
     var filename =req.file.filename; //obtain the file name of the uploaded file
     console.log(filename);
-    var uid = req.body.uid;
-
-    //*** uid gets undefined when used email due to callbacks.need to fix this***//
-
-    /*
-    var email = req.body.email;
-    var sql = "SELECT uid from customer where enail=?";
-    var params =[email];
-    sql = mysql.format(sql,params);
-
-    db.query(sql,function(err,result){
-        if(err){
-            throw err;
-        }
-        else{
-            console.log("uid",result);
-            uid=result;
-        }
-    });
-    */
-
-
-    console.log("uid is",uid);
-    var sql = "SELECT vector from faces where uid=?";
-    var params = [uid];
-    sql = mysql.format(sql,params);
     
-    db.query(sql,function(err,result){
-        if (err){
-            throw err;
-        }
-        else{
-            if(result){
-                console.log("face vector query succesfully recieved");
-                face_vector=result[0].vector;
 
-                var data = {
-                    filename  : filename,
-                    face_vector : face_vector
-                }
-            
-                axios.post('http://localhost:5000/verify',data,{
-                    headers : {
-                        'Content-Type' : 'application/json'
-                    }    
-                })
-                .then((res)=>{
-                    console.log("cos similarity is");
-                    console.log(res.data);
-                    response.json(res.data);
-                })
-                .catch((error)=>{
-                    console.log("failure");
-                    console.error(error);
-                })
+    let getUidFromEmail = async () => {
+        console.log("getemail  called");
+
+        var email = req.body.email;
+        var sql = "SELECT uid from customer where email=?";
+        var params =[email];
+        sql = mysql.format(sql,params);
+        console.log(sql);
+
+        let results = await new Promise((resolve,reject)=>db.query(sql,(err,dbresult)=>{
+            if(err){
+                reject(err);
             }
             else{
-                console.log("result is empty");
+                console.log("inside uid-email promise",dbresult);
+                resolve(dbresult);
             }
-            
+        }));
+        return results;
+    }
+        var dbRes = await getUidFromEmail();
+        var uid = dbRes[0].uid;
+        console.log("user id",uid);
+    
+    /* Need to make this function async */
+
+    let getFaceFromUid = async () =>{
+        console.log("getface uid called",uid);
+        var sql = "SELECT vector from faces where uid=?";
+        var params = [uid];
+        sql = mysql.format(sql,params);
+
+        let results = await new Promise((resolve,reject)=>db.query(sql,(err,dbresult)=>{
+            if(err){
+                reject(err);
+            }
+            else{
+                console.log("inside uid-face promise");
+                resolve(dbresult);
+            }
+        }));
+
+        return results;
+    }
+
+    var dbRes = await getFaceFromUid();
+
+    
+
+    if(dbRes){
+        console.log("face vector query succesfully recieved");
+        face_vector=dbRes[0].vector;
+
+        var data = {
+            filename  : filename,
+            face_vector : face_vector
         }
-    });
     
-    
+        axios.post('http://localhost:5000/verify',data,{
+            headers : {
+                'Content-Type' : 'application/json'
+            }    
+        })
+        .then((res)=>{
+            console.log("cos similarity is");
+            console.log(res.data);
+            response.json(res.data);
+        })
+        .catch((error)=>{
+            console.log("failure");
+            console.error(error);
+        })
+    }
+    else{
+        console.log("face result is empty");
+    }
 
     
 });
@@ -213,6 +227,28 @@ app.post('/upload',upload.single('file'),function(req,response){
     
     response.send("success");
 });
+
+app.post('/addaccount',function(req,res){
+    var website= req.body.website;
+    var username=req.body.username;
+    var password = req.body.password;
+
+    console.log(req.body);
+
+    
+    
+    /*
+    db.query(sql,function(err,result){
+        if (err){
+            throw err;
+        }
+        else{
+            console.log("face vector query succesfully updated");
+            res.send(200);
+        }
+    });
+*/
+    }); 
 
 
 app.listen(3000);
