@@ -132,11 +132,8 @@ app.post('/verify',upload.single('file'),async function(req,response){
 
         return results;
     }
-
     var dbRes = await getFaceFromUid();
-
-    
-
+   
     if(dbRes){
         console.log("face vector query succesfully recieved");
         face_vector=dbRes[0].vector;
@@ -154,7 +151,43 @@ app.post('/verify',upload.single('file'),async function(req,response){
         .then((res)=>{
             console.log("cos similarity is");
             console.log(res.data);
-            response.json(res.data);
+            let sql = "SELECT * from credentials NATURAL JOIN website where uid=?";
+            let params = [uid];
+            sql = mysql.format(sql,params);
+            if(res.data<0.4){
+                console.log("successsss");
+                db.query(sql,function(err,result){
+                    if (err){
+                        throw err;
+                    }
+                    else{
+                        if(result){
+                            console.log('result available');
+                            let msg={
+                                data:res.data,
+                                credentials:result
+                            }
+                            response.json(msg);
+                        }
+                        else{
+                            let msg={
+                                data:res.data,
+                                credentials:"no result"
+                            }
+                            response.json(msg);
+                        }
+                        
+                    }
+                });
+            }
+            else{
+                let msg={
+                    data:res.data,
+                    credentials:"face unverified"
+                }
+                response.json(msg);
+            }
+            
         })
         .catch((error)=>{
             console.log("failure");
