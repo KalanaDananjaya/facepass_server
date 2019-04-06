@@ -1,3 +1,6 @@
+
+require('dotenv').config();
+
 var db = require ('./db_connection');
 var mysql =require('mysql');
 var express = require('express');
@@ -9,6 +12,7 @@ var upload = multer ({ dest : 'uploads/'});
 var registerUpload =multer ({ dest : 'register/'});
 var FormData = require('form-data');
 var cors = require('cors');
+const Cryptr = require('cryptr');
 
 
 var app = express();
@@ -75,10 +79,6 @@ app.post('/register',registerUpload.single('file'),function(req,res){
         console.error(error);
     })
     
-});
-
-app.get('/verify',function(req,res){
-    console.log('verify get');
 });
 
 
@@ -151,7 +151,7 @@ app.post('/verify',upload.single('file'),async function(req,response){
         .then((res)=>{
             console.log("cos similarity is");
             console.log(res.data);
-            let sql = "SELECT * from credentials NATURAL JOIN website where uid=?";
+            let sql = "SELECT * from credentials where uid=?";
             let params = [uid];
             sql = mysql.format(sql,params);
             if(res.data<0.4){
@@ -162,10 +162,19 @@ app.post('/verify',upload.single('file'),async function(req,response){
                     }
                     else{
                         if(result){
-                            console.log('result available');
+                            console.log('result available',result);
+                            const cryptr = new Cryptr(process.env.encrypt_secret);
+
+                            result.forEach(element => {
+                                element.password = cryptr.decrypt(element.password);
+                            });
+
+                            console.log("decrypted",result);
+
                             let msg={
                                 data:res.data,
-                                credentials:result
+                                credentials:result,
+                                uid : uid
                             }
                             response.json(msg);
                         }
@@ -208,24 +217,7 @@ app.post('/verify',upload.single('file'),async function(req,response){
 app.get('/',function(req,res){
    
     console.log('request revieced');
-    
-/*
-    axios.post('http://localhost:5000/',data,{
-        headers : {
-            'Content-Type' : 'application/json'
-        }
-        
-    })
-    .then((response)=>{
-        console.log('response recieved');
-        console.log(response);
-        //res.send(response.data);
-    })
-    .catch((error)=>{
-        console.log('error recieved');
-        console.error(error);
-    })
-*/    
+ 
     res.send(200);
 });
 
@@ -265,35 +257,15 @@ app.post('/addaccount',async function(req,res){
     var website= req.body.website;
     var username=req.body.username;
     var password = req.body.password;
+    var uid = req.body.uid;
+    const cryptr = new Cryptr(process.env.encrypt_secret);
+    password = cryptr.encrypt(password);
 
     console.log(req.body);
-
-    let getWebid = async () =>{
-        console.log("searching for webid");
-        var sql = "SELECT webid FROM website WHERE sitename=?";
-        var params = [website];
-        sql = mysql.format(sql,params);
-
-        let results = await new Promise((resolve,reject)=>db.query(sql,(err,dbresult)=>{
-            if(err){
-                reject(err);
-            }
-            else{
-                console.log("inside webid-sitename promise");
-                resolve(dbresult);
-            }
-        }));
-
-        return results;
-    }
-
-    var dbRes = await getWebid();
-    var webid = dbRes[0].webid;
-    var uid = "1ab0123d-700d-4ade-b5e0-d9c6e4bef257"; //should be taken from the local storage
-    console.log(webid);
-
+    
+    
     var sql = "INSERT INTO credentials VALUES (?,?,?,?)";
-    var params = [webid,uid,username,password];
+    var params = [uid,website,username,password];
     sql = mysql.format(sql,params);
     console.log(sql);
     db.query(sql,function (err,result){
