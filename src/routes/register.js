@@ -15,7 +15,7 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
     uid = uuid();
 
     fileName = req.file.filename;
-    /*There is a issue in adding telephone number*/
+    
    
     var sql ="INSERT INTO customer (email,firstName,uid) values(?,?,?)";
     var params=[email,firstName,uid];
@@ -55,7 +55,7 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
         }
         else{
             console.log("face vector query succesfully updated");
-            res.send(200);
+            res.send("You have succesfully Registered.Please Close this tab");
         }
     });
         

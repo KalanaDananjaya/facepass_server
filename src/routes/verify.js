@@ -84,7 +84,11 @@ router.post('/',upload.single('file'),async(req,response)=>{
                 console.log("successsss");
                 db.query(sql,function(err,result){
                     if (err){
-                        throw err;
+                        let msg = {
+                            data:err,
+                            credentials:"no result"
+                        }
+                        response.json(msg);
                     }
                     else{
                         if(result){

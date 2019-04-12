@@ -19,17 +19,25 @@ router.post('/',async(req,res)=>{
     console.log(req.body);
     
     
-    var sql = "INSERT INTO credentials VALUES (?,?,?,?)";
-    var params = [uid,website,username,password];
+    var sql = 'INSERT INTO credentials VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE uid=?,website=?,username=?,password=? ';
+    var params = [uid,website,username,password,uid,website,username,password];
     sql = mysql.format(sql,params);
     console.log(sql);
     db.query(sql,function (err,result){
         if(err){
-            throw err;
+            let msg = {
+                success : false,
+                msg:err
+            }
+            res.json(msg);
         }
         else{
             console.log("account details succesfully added");
-            res.json("success");
+            let msg = {
+                success : true,
+                msg:"success"
+            }
+            res.json(msg);
         }
     });
 });
