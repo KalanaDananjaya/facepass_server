@@ -15,4 +15,6 @@ app.use('/register',register);
 app.use('/verify',verify);
 app.use('/addaccount',addaccount);
 
-app.listen(3000);
+var server = app.listen(3000);
+
+module.exports = server;

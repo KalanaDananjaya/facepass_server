@@ -9,6 +9,7 @@ const Cryptr = require('cryptr');
 
 
 router.post('/',async(req,res)=>{
+    
     var website= req.body.website;
     var username=req.body.username;
     var password = req.body.password;
@@ -16,13 +17,13 @@ router.post('/',async(req,res)=>{
     const cryptr = new Cryptr(process.env.encrypt_secret);
     password = cryptr.encrypt(password);
 
-    console.log(req.body);
+   
     
     
     var sql = 'INSERT INTO credentials VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE uid=?,website=?,username=?,password=? ';
     var params = [uid,website,username,password,uid,website,username,password];
     sql = mysql.format(sql,params);
-    console.log(sql);
+    //console.log(sql);
     db.query(sql,function (err,result){
         if(err){
             let msg = {
@@ -32,7 +33,7 @@ router.post('/',async(req,res)=>{
             res.json(msg);
         }
         else{
-            console.log("account details succesfully added");
+            //console.log("account details succesfully added");
             let msg = {
                 success : true,
                 msg:"success"

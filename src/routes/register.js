@@ -3,15 +3,15 @@ const router = express.Router();
 const uuid = require ('uuid/v4');
 const axios = require('axios');
 var multer = require('multer');
-var registerUpload =multer ({ dest : '../register/'});
+var registerUpload =multer ({ dest : '../../register/'});
 var db = require ('../db_connection');
 var mysql =require('mysql');
 
 router.post('/',registerUpload.single('file'),(req,res)=>{
-    console.log("register called");
+    //console.log("register called");
     email=req.body.email;
     firstName = req.body.firstName;
-    tp = req.body.tp;
+    password = req.body.pass;
     uid = uuid();
 
     fileName = req.file.filename;
@@ -26,7 +26,8 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
             throw err;
         }
         else{
-            console.log("customer query succesfully updated");
+            //console.log("customer query succesfully updated");
+            ;
         }
     });
 
@@ -34,7 +35,7 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
     var data = {
         "filename":fileName,
     }
-    console.log ("data",data)
+    //console.log ("data",data)
 
     axios.post('http://localhost:5000/preprocess',data,{
         headers : {
@@ -42,7 +43,7 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
         }
     })
     .then((response)=>{
-        console.log(response);
+        
         var sql = "INSERT INTO faces (uid,face,vector) values(?,?,?)";
         var params = [uid,fileName,JSON.stringify(response.data)]; //response.data is the vector of the face
 
@@ -54,14 +55,14 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
             throw err;
         }
         else{
-            console.log("face vector query succesfully updated");
+            //console.log("face vector query succesfully updated");
             res.send("You have succesfully Registered.Please Close this tab");
         }
     });
         
     })
     .catch((error)=>{
-        console.log('error recieved');
+        //console.log('error recieved');
         console.error(error);
     })
     
