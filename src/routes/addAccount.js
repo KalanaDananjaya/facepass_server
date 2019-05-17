@@ -23,9 +23,10 @@ router.post('/',async(req,res)=>{
     var sql = 'INSERT INTO credentials VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE uid=?,website=?,username=?,password=? ';
     var params = [uid,website,username,password,uid,website,username,password];
     sql = mysql.format(sql,params);
-    //console.log(sql);
+    console.log(sql);
     db.query(sql,function (err,result){
         if(err){
+            console.log(err);
             let msg = {
                 success : false,
                 msg:err
@@ -33,7 +34,7 @@ router.post('/',async(req,res)=>{
             res.json(msg);
         }
         else{
-            //console.log("account details succesfully added");
+            console.log("account details succesfully added");
             let msg = {
                 success : true,
                 msg:"success"

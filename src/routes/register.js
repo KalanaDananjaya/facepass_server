@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const uuid = require ('uuid/v4');
 const axios = require('axios');
-var multer = require('multer');
-var registerUpload =multer ({ dest : '../../register/'});
+var multer = require('multer'); 
+var registerUpload =multer ({ dest : '../register/'});
 var db = require ('../db_connection');
 var mysql =require('mysql');
 

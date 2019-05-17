@@ -5,13 +5,13 @@ var mysql =require('mysql');
 const axios = require('axios');
 const Cryptr = require('cryptr');
 var multer = require('multer');
-var upload = multer ({ dest : '../../uploads/'});
+var upload = multer ({ dest : '../uploads/'});
 
 router.post('/',upload.single('file'),async(req,response)=>{
 
-    //console.log('recieved file for comparison');
+    
     var filename =req.file.filename; //obtain the file name of the uploaded file
-    //console.log(filename);
+    console.log('recieved file for comparison',filename);
     
 
     let getUidFromEmail = async () => {
@@ -34,15 +34,28 @@ router.post('/',upload.single('file'),async(req,response)=>{
             }
         }));
         return results;
-    }
-        var dbRes = await getUidFromEmail();
-        var uid = dbRes[0].uid;
-        //console.log("user id",uid);
+    }   
+        try{
+            var dbRes = await getUidFromEmail();
+            var uid = dbRes[0].uid;
+            console.log("user id",uid);
+        }
+        catch(err){
+            console.log("user id",uid);
+            let msg = {
+                data:-1,
+                credentials:"no result"
+            }
+            return response.json(msg);
+            
+        }
+        
+
     
     
 
     let getFaceFromUid = async () =>{
-        //console.log("getface uid called",uid);
+        console.log("getface uid called",uid);
         var sql = "SELECT vector from faces where uid=?";
         var params = [uid];
         sql = mysql.format(sql,params);
@@ -62,7 +75,7 @@ router.post('/',upload.single('file'),async(req,response)=>{
     var dbRes = await getFaceFromUid();
    
     if(dbRes){
-        //console.log("face vector query succesfully recieved");
+        console.log("face vector query succesfully recieved");
         face_vector=dbRes[0].vector;
 
         var data = {
@@ -93,7 +106,7 @@ router.post('/',upload.single('file'),async(req,response)=>{
                     }
                     else{
                         if(result){
-                            //console.log('result available',result);
+                            console.log('result available',result);
                             const cryptr = new Cryptr(process.env.encrypt_secret);
 
                             result.forEach(element => {
