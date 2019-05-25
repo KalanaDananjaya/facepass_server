@@ -107,7 +107,7 @@ router.post('/',upload.single('file'),async(req,response)=>{
                     else{
                         if(result){
                             console.log('result available',result);
-                            const cryptr = new Cryptr(process.env.encrypt_secret||'as@saZxf84)');
+                            const cryptr = new Cryptr(process.env.encrypt_secret||'');
 
                             result.forEach(element => {
                                 element.password = cryptr.decrypt(element.password);

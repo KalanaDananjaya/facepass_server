@@ -9,12 +9,13 @@ const Cryptr = require('cryptr');
 
 
 router.post('/',async(req,res)=>{
-    
+
+    console.log("add account called");    
     var website= req.body.website;
     var username=req.body.username;
     var password = req.body.password;
     var uid = req.body.uid;
-    const cryptr = new Cryptr(process.env.encrypt_secret);
+    const cryptr = new Cryptr(process.env.encrypt_secret||'as@saZxf84)');
     password = cryptr.encrypt(password);
 
    

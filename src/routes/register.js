@@ -8,7 +8,7 @@ var db = require ('../db_connection');
 var mysql =require('mysql');
 
 router.post('/',registerUpload.single('file'),(req,res)=>{
-    //console.log("register called");
+    console.log("register called");
     email=req.body.email;
     firstName = req.body.firstName;
     password = req.body.pass;

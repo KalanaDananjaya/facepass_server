@@ -2,13 +2,15 @@ var mysql = require ('mysql');
 require('dotenv').config();
 
 var connection = mysql.createConnection({
-    host:process.env.db_host,
-    user:process.env.db_user,
-    password:process.env.db_password,
-    database:process.env.db_database
+    host:'remotemysql.com',
+    user:'aw0heiKQHd',
+    password:'dYGtKwJbTP',
+    database:'aw0heiKQHd'
 });
 
 connection.connect(function (err){
+console.log(connection.host,connection.user,connection.password,connection.database);
+
     if(err) {
         throw err;
     }
