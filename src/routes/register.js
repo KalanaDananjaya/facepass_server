@@ -6,6 +6,7 @@ var multer = require('multer');
 var registerUpload =multer ({ dest : '../register/'});
 var db = require ('../db_connection');
 var mysql =require('mysql');
+var path = require('path');
 
 router.post('/',registerUpload.single('file'),(req,res)=>{
     console.log("register called");
@@ -56,7 +57,8 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
         }
         else{
             //console.log("face vector query succesfully updated");
-            res.send("You have succesfully Registered.Please Close this tab");
+            console.log(path.join(__dirname + '../views/index.html'));
+            res.sendFile(path.join(__dirname + '../views/index.html'));
         }
     });
         
