@@ -57,8 +57,8 @@ router.post('/',registerUpload.single('file'),(req,res)=>{
         }
         else{
             //console.log("face vector query succesfully updated");
-            console.log(path.join(__dirname + '../views/index.html'));
-            res.sendFile(path.join(__dirname + '../views/index.html'));
+            console.log(path.join(__dirname , '../views/index.html'));
+            res.sendFile(path.join(__dirname ,'../views/index.html'));
         }
     });
         
