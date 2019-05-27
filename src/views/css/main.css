@@ -1,0 +1,8 @@
+.jumbotron{
+    height: 100vh;
+    width: 10px;
+}
+
+.container{
+    min-height: 100vh;
+}
