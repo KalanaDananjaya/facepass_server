@@ -12,12 +12,12 @@ chai.use(chaiHttp);
 
 describe("Testing",function(){
   
-  this.timeout(5000);
+  this.timeout(10000);
   
   it("/verify end point tested",(done)=>{
     chai.request(server)
       .post('/verify')
-      .attach("file","./test_images/positive.jpg")
+      .attach("file","/home/kalana_16/facepass_server/src/tests/test_images/positive.jpg")
       .field({ email : "kalana.16@cse.mrt.ac.lk"})
       .end((err,res)=>{
         res.should.have.status(200);
@@ -31,7 +31,7 @@ describe("Testing",function(){
   it("/register end point tested",(done)=>{
     chai.request(server)
       .post('/register')
-      .attach("file","./test_images/positive.jpg")
+      .attach("file","/home/kalana_16/facepass_server/src/tests/test_images/positive.jpg")
       .field({
           firstName : "Test User",
           email : "test@gmail.com",

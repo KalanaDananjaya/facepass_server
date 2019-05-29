@@ -5,7 +5,7 @@ var mysql =require('mysql');
 const axios = require('axios');
 const Cryptr = require('cryptr');
 var multer = require('multer');
-var upload = multer ({ dest : '../uploads/'});
+var upload = multer ({ dest : '/home/kalana_16/uploads'});
 
 router.post('/',upload.single('file'),async(req,response)=>{
 
@@ -21,7 +21,7 @@ router.post('/',upload.single('file'),async(req,response)=>{
         var sql = "SELECT uid from customer where email=?";
         var params =[email];
         sql = mysql.format(sql,params);
-        //console.log(sql);
+        console.log(sql);
 
         let results = await new Promise((resolve,reject)=>db.query(sql,(err,dbresult)=>{
             if(err){
